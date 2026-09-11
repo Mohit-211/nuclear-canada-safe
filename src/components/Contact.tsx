@@ -1,11 +1,93 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Phone, Mail, Globe, Clock, MapPin } from "lucide-react";
+import { Phone, Mail, Globe, Clock, MapPin, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const INFORMATION_REQUEST_API_URL =
+  "https://api.lifeworthlivingfilm.com/api/v1/contactUs/information-request";
+
+const SERVICE_OPTIONS: Record<string, string> = {
+  audit: "Auditing & Inspection Services",
+  programs: "Radiation Safety Programs",
+  training: "Customized/Bespoke Training",
+  consultation: "General Consultation",
+};
+
+const initialFormState = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  company: "",
+  phone: "",
+  service: "",
+  message: "",
+};
 
 const Contact = () => {
+  const { toast } = useToast();
+  const [formData, setFormData] = useState(initialFormState);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.firstName || !formData.lastName || !formData.email) {
+      toast({
+        title: "Missing required fields",
+        description: "Please fill in your first name, last name, and email.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(INFORMATION_REQUEST_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          company: formData.company,
+          phone: formData.phone,
+          service_interest: SERVICE_OPTIONS[formData.service] ?? formData.service,
+          message: formData.message,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+
+      toast({
+        title: "Request sent",
+        description: "Thanks for reaching out. We'll get back to you within 24 hours.",
+      });
+      setFormData(initialFormState);
+    } catch (error) {
+      toast({
+        title: "Something went wrong",
+        description: "We couldn't send your request. Please try again or contact us directly.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section id="contact" className="py-20 bg-background">
       <div className="container mx-auto px-4">
@@ -73,59 +155,103 @@ const Contact = () => {
                 Fill out the form below and we'll get back to you within 24 hours.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" placeholder="Enter your first name" />
+            <CardContent>
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input
+                      id="firstName"
+                      placeholder="Enter your first name"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input
+                      id="lastName"
+                      placeholder="Enter your last name"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
                 </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" placeholder="Enter your last name" />
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Enter your email" />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="company">Company/Organization</Label>
+                  <Input
+                    id="company"
+                    placeholder="Enter your company name"
+                    value={formData.company}
+                    onChange={handleChange}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="company">Company/Organization</Label>
-                <Input id="company" placeholder="Enter your company name" />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" type="tel" placeholder="Enter your phone number" />
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="service">Service Interest</Label>
+                  <select
+                    id="service"
+                    className="w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                    value={formData.service}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select a service</option>
+                    {Object.entries(SERVICE_OPTIONS).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="service">Service Interest</Label>
-                <select 
-                  id="service" 
-                  className="w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                >
-                  <option value="">Select a service</option>
-                  <option value="audit">Auditing & Inspection Services</option>
-                  <option value="programs">Radiation Safety Programs</option>
-                  <option value="training">Customized/Bespoke Training</option>
-                  <option value="consultation">General Consultation</option>
-                </select>
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="message">Message</Label>
+                  <Textarea
+                    id="message"
+                    placeholder="Tell us about your specific needs or questions"
+                    className="min-h-[100px]"
+                    value={formData.message}
+                    onChange={handleChange}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="message">Message</Label>
-                <Textarea 
-                  id="message" 
-                  placeholder="Tell us about your specific needs or questions"
-                  className="min-h-[100px]"
-                />
-              </div>
-
-              <Button className="w-full" size="lg">
-                Send Message
-              </Button>
+                <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send Message"
+                  )}
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </div>
