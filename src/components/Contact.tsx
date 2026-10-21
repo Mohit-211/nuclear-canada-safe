@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,9 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Phone, Mail, Globe, Clock, MapPin, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-const INFORMATION_REQUEST_API_URL =
-  "https://api.lifeworthlivingfilm.com/api/v1/contactUs/information-request";
 
 const SERVICE_OPTIONS: Record<string, string> = {
   audit: "Auditing & Inspection Services",
@@ -54,17 +53,12 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(INFORMATION_REQUEST_API_URL, {
+      const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          company: formData.company,
-          phone: formData.phone,
-          service_interest: SERVICE_OPTIONS[formData.service] ?? formData.service,
-          message: formData.message,
+          ...formData,
+          service: SERVICE_OPTIONS[formData.service] ?? formData.service,
         }),
       });
 
@@ -77,7 +71,7 @@ const Contact = () => {
         description: "Thanks for reaching out. We'll get back to you within 24 hours.",
       });
       setFormData(initialFormState);
-    } catch (error) {
+    } catch {
       toast({
         title: "Something went wrong",
         description: "We couldn't send your request. Please try again or contact us directly.",
@@ -96,7 +90,7 @@ const Contact = () => {
             Get Started Today
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Contact our experts for a consultation. We're here to help 
+            Contact our experts for a consultation. We&apos;re here to help
             you achieve and maintain regulatory compliance.
           </p>
         </div>
@@ -105,7 +99,7 @@ const Contact = () => {
           {/* Contact Information */}
           <div className="space-y-6">
               <div className="flex items-start gap-4">
-                <Phone className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <Phone className="h-6 w-6 text-primary mt-1 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-foreground mb-1">Phone</h3>
                   <p className="text-muted-foreground">705-991-2234 or 1-800-371-6853</p>
@@ -113,7 +107,7 @@ const Contact = () => {
               </div>
 
               <div className="flex items-start gap-4">
-                <Mail className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <Mail className="h-6 w-6 text-primary mt-1 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-foreground mb-1">Email</h3>
                   <p className="text-muted-foreground">info@nuclearsafety.ca</p>
@@ -121,7 +115,7 @@ const Contact = () => {
               </div>
 
               <div className="flex items-start gap-4">
-                <Globe className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <Globe className="h-6 w-6 text-primary mt-1 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-foreground mb-1">Website</h3>
                   <p className="text-muted-foreground">www.nuclearsafety.ca</p>
@@ -129,7 +123,7 @@ const Contact = () => {
               </div>
 
               <div className="flex items-start gap-4">
-                <MapPin className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <MapPin className="h-6 w-6 text-primary mt-1 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-foreground mb-1">Service Area</h3>
                   <p className="text-muted-foreground">Across Canada - Industrial, Medical, Academic, Government sectors</p>
@@ -137,7 +131,7 @@ const Contact = () => {
               </div>
 
               <div className="flex items-start gap-4">
-                <Clock className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
+                <Clock className="h-6 w-6 text-primary mt-1 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-foreground mb-1">Business Hours</h3>
                   <p className="text-muted-foreground">
@@ -152,7 +146,7 @@ const Contact = () => {
             <CardHeader>
               <CardTitle>Request Information</CardTitle>
               <CardDescription>
-                Fill out the form below and we'll get back to you within 24 hours.
+                Fill out the form below and we&apos;ll get back to you within 24 hours.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -217,7 +211,7 @@ const Contact = () => {
                   <Label htmlFor="service">Service Interest</Label>
                   <select
                     id="service"
-                    className="w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full px-3 py-2 border border-input bg-background rounded-md focus:outline-hidden focus:ring-2 focus:ring-ring"
                     value={formData.service}
                     onChange={handleChange}
                   >

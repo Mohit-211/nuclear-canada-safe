@@ -1,6 +1,8 @@
+"use client";
+
 import * as React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DayPicker } from "react-day-picker";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
+import { DayButton, DayPicker, type ChevronProps, type DayButtonProps } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
@@ -11,44 +13,70 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      navLayout="around"
       className={cn("p-3", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-        month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center",
+        month: "relative space-y-4",
+        month_caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
-        nav: "space-x-1 flex items-center",
-        nav_button: cn(
+        button_previous: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+          "absolute left-1 top-0 z-10 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
         ),
-        nav_button_previous: "absolute left-1",
-        nav_button_next: "absolute right-1",
-        table: "w-full border-collapse space-y-1",
-        head_row: "flex",
-        head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-        row: "flex w-full mt-2",
-        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-        day: cn(buttonVariants({ variant: "ghost" }), "h-9 w-9 p-0 font-normal aria-selected:opacity-100"),
-        day_range_end: "day-range-end",
-        day_selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-        day_today: "bg-accent text-accent-foreground",
-        day_outside:
-          "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
-        day_disabled: "text-muted-foreground opacity-50",
-        day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-        day_hidden: "invisible",
+        button_next: cn(
+          buttonVariants({ variant: "outline" }),
+          "absolute right-1 top-0 z-10 h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+        ),
+        month_grid: "w-full border-collapse space-y-1",
+        weekdays: "flex",
+        weekday: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+        week: "flex w-full mt-2",
+        day: "h-9 w-9 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
+        range_start: "day-range-start rounded-l-md bg-accent",
+        range_middle: "bg-accent",
+        range_end: "day-range-end rounded-r-md bg-accent",
+        hidden: "invisible",
         ...classNames,
       }}
       components={{
-        IconLeft: ({ ..._props }) => <ChevronLeft className="h-4 w-4" />,
-        IconRight: ({ ..._props }) => <ChevronRight className="h-4 w-4" />,
+        Chevron: CalendarChevron,
+        DayButton: CalendarDayButton,
       }}
       {...props}
     />
   );
 }
 Calendar.displayName = "Calendar";
+
+const chevronIcons = { left: ChevronLeft, right: ChevronRight, up: ChevronUp, down: ChevronDown };
+
+function CalendarChevron({ orientation = "left", className }: ChevronProps) {
+  const Icon = chevronIcons[orientation];
+  return <Icon className={cn("h-4 w-4", className)} />;
+}
+
+// react-day-picker v9 sets day state (selected, today, ...) on the cell, so the button styles are applied here.
+// Wraps the default DayButton, which moves focus to the active day during keyboard navigation.
+function CalendarDayButton({ className, modifiers, ...props }: DayButtonProps) {
+  return (
+    <DayButton
+      modifiers={modifiers}
+      className={cn(
+        buttonVariants({ variant: "ghost" }),
+        "h-9 w-9 p-0 font-normal",
+        modifiers.today && "bg-accent text-accent-foreground",
+        modifiers.selected &&
+          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+        modifiers.range_middle && "bg-accent text-accent-foreground hover:bg-accent hover:text-accent-foreground",
+        modifiers.outside && "text-muted-foreground opacity-50",
+        modifiers.outside && modifiers.selected && "bg-accent/50 text-muted-foreground opacity-30",
+        modifiers.disabled && "text-muted-foreground opacity-50",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
 
 export { Calendar };

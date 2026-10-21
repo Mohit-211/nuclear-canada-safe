@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const TermsPrivacy = () => {
+export const metadata: Metadata = {
+  title: "Terms of Service & Privacy Policy",
+  description:
+    "Terms of Service and Privacy Policy for Canadian Nuclear Safety Services Inc., including how we collect, use and protect personal information under PIPEDA.",
+};
+
+export default function TermsPrivacyPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -15,7 +22,7 @@ const TermsPrivacy = () => {
             <p className="text-sm text-muted-foreground mb-6">Last updated: 2025.11.01</p>
             
             <p className="mb-6 text-foreground leading-relaxed">
-              Welcome to Canadian Nuclear Safety Services Inc. ("CNSS," "we," "our," "us"). 
+              Welcome to Canadian Nuclear Safety Services Inc. (&quot;CNSS,&quot; &quot;we,&quot; &quot;our,&quot; &quot;us&quot;).
               By accessing or using our website, you agree to these Terms of Service. If you do not 
               agree, please do not use this site.
             </p>
@@ -50,7 +57,7 @@ const TermsPrivacy = () => {
               <div>
                 <h3 className="text-xl font-semibold mb-3 text-foreground">4. Limitation of Liability</h3>
                 <p className="text-foreground leading-relaxed">
-                  The information on this website is provided "as is" without warranties of any kind. 
+                  The information on this website is provided &quot;as is&quot; without warranties of any kind. 
                   CNSS is not liable for any damages arising from the use of this site or reliance on 
                   its content.
                 </p>
@@ -164,6 +171,4 @@ const TermsPrivacy = () => {
       <Footer />
     </div>
   );
-};
-
-export default TermsPrivacy;
+}

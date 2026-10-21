@@ -1,4 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+"use client";
+
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 const HERO_IMAGES = [
   '/images/hero-radiation-training.jpg',  // Radiation safety training
@@ -8,19 +11,17 @@ const HERO_IMAGES = [
   '/images/hero-sentinel-gauge.webp',     // Sentinel radiation gauge
 ];
 
+const CYCLE_MS = 12000; // time per image
+
 const Hero = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentSrc, setCurrentSrc] = useState<string>(HERO_IMAGES[0]);
   const intervalRef = useRef<number | null>(null);
-  const CYCLE_MS = 12000; // time per image
-  const params = new URLSearchParams(window.location.search);
-  const debug = params.get('debug') === '1';
-  const cssMode = params.get('heroMode') === 'css';
 
   useEffect(() => {
     // Preload images
     HERO_IMAGES.forEach((src) => {
-      const img = new Image();
+      const img = new window.Image();
       img.src = src;
     });
 
@@ -51,7 +52,7 @@ const Hero = () => {
 
       {/* Overlays */}
       <div className="absolute inset-0 -z-10 bg-black/55" />
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-red-700/25 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-linear-to-t from-red-700/25 to-transparent" />
 
       {/* Content */}
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24 lg:py-36">
@@ -63,14 +64,14 @@ const Hero = () => {
             Trusted consulting and training from former CNSC inspector, Licensing Specialist and Health Physicist - all provinces.
           </p>
           <div className="mt-6 sm:mt-8 flex flex-row gap-3">
-            <a 
-              href="#contact" 
+            <a
+              href="#contact"
               className="rounded-xl bg-red-600 px-6 py-3 font-semibold text-white text-center shadow-lg hover:bg-red-500 transition-all hover:scale-105 active:scale-95"
             >
               Request a Quote
             </a>
-            <a 
-              href="https://hazardu.com" 
+            <a
+              href="https://hazardu.com"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl bg-red-600 px-6 py-3 font-semibold text-white text-center shadow-lg hover:bg-red-500 transition-all hover:scale-105 active:scale-95"
@@ -81,51 +82,26 @@ const Hero = () => {
         </div>
       </div>
 
-      {debug && (
-        <div className="absolute right-3 top-3 z-10 rounded-md bg-black/60 p-3 text-xs text-white space-y-1">
-          <div>mode: simple</div>
-          <div>idx: {currentIndex}</div>
-          <div>curr: {currentSrc.split('/').pop()}</div>
-        </div>
-      )}
-
-      <style>{`
-        .hero-slide {
-          position: absolute;
-          inset: 0;
-          background-size: contain;
-          background-color: hsl(0 0% 0%);
-          background-position: center;
-          background-repeat: no-repeat;
-          transition: opacity 2000ms ease-in-out;
-          will-change: opacity;
-        }
-
-        .hero-frame {
-          position: absolute;
-          inset: 0;
-          background-size: contain;
-          background-color: hsl(0 0% 0%);
-          background-position: center;
-          background-repeat: no-repeat;
-          opacity: 0;
-          animation: heroCssFade 40s linear infinite;
-          will-change: opacity;
-        }
-
-        @keyframes heroCssFade {
-          0%, 15% { opacity: 1; }
-          20%, 100% { opacity: 0; }
-        }
-        
-        @media (prefers-reduced-motion: reduce) {
-          .hero-slide {
-            transition: opacity 800ms ease-in-out !important;
-          }
-        }
-      `}</style>
+      {/* Reading the query string opts out of prerendering, so keep it in its own boundary. */}
+      <Suspense fallback={null}>
+        <HeroDebug index={currentIndex} src={currentSrc} />
+      </Suspense>
     </section>
   );
 };
+
+// Shown when the URL has ?debug=1
+function HeroDebug({ index, src }: { index: number; src: string }) {
+  const debug = useSearchParams().get('debug') === '1';
+  if (!debug) return null;
+
+  return (
+    <div className="absolute right-3 top-3 z-10 rounded-md bg-black/60 p-3 text-xs text-white space-y-1">
+      <div>mode: simple</div>
+      <div>idx: {index}</div>
+      <div>curr: {src.split('/').pop()}</div>
+    </div>
+  );
+}
 
 export default Hero;

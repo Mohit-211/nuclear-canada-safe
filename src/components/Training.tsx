@@ -110,7 +110,7 @@ const Training = () => {
                 <ul className="space-y-2 mb-6">
                   {option.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0" />
                       {feature}
                     </li>
                   ))}

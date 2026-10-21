@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -79,15 +80,18 @@ const About = () => {
                 </p>
               </div>
               <div className="flex justify-center">
-                <img 
-                  src="/lovable-uploads/1f6522c1-74da-4a37-aae5-5e642255c16e.png" 
-                  alt="CNSC Regulatory Framework and Radioactive Decay Formulas" 
+                <Image
+                  src="/uploads/1f6522c1-74da-4a37-aae5-5e642255c16e.png"
+                  alt="CNSC Regulatory Framework and Radioactive Decay Formulas"
+                  width={1536}
+                  height={1024}
+                  sizes="(min-width: 768px) 672px, 100vw"
                   className="max-w-2xl w-full h-auto rounded-lg shadow-lg"
                 />
               </div>
               <div className="text-center mt-6">
                 <p className="text-sm text-muted-foreground">
-                  From fundamental health physics calculations to navigating CNSC's comprehensive regulatory framework, 
+                  From fundamental health physics calculations to navigating CNSC&apos;s comprehensive regulatory framework, 
                   our expertise spans the complete spectrum of nuclear safety requirements.
                 </p>
               </div>
@@ -100,7 +104,7 @@ const About = () => {
             <Card key={index} className="h-full">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="text-primary flex-shrink-0 mt-1">
+                  <div className="text-primary shrink-0 mt-1">
                     {advantage.icon}
                   </div>
                   <div>

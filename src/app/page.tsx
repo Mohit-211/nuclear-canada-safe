@@ -6,7 +6,7 @@ import About from "@/components/About";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 
-const Index = () => {
+export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -18,6 +18,4 @@ const Index = () => {
       <Footer />
     </div>
   );
-};
-
-export default Index;
+}
