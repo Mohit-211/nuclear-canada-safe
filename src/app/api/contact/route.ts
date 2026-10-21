@@ -47,19 +47,26 @@ export async function POST(request: Request) {
   const name = `${firstName} ${lastName}`;
   try {
     await transporter.sendMail({
-      from: MAIL_FROM || SMTP_USER,
+      from: MAIL_FROM || { name: "nuclearsafety.ca Contact Form", address: SMTP_USER },
       to: MAIL_TO,
       replyTo: { name, address: email },
-      subject: `New website enquiry from ${name}`,
+      subject: `[nuclearsafety.ca] New enquiry from ${name}${service ? ` (${service})` : ""}`,
       text: [
-        `Name: ${name}`,
-        `Email: ${email}`,
-        `Company: ${company || "-"}`,
-        `Phone: ${phone || "-"}`,
-        `Service interest: ${service || "-"}`,
+        "New enquiry from the contact form on nuclearsafety.ca",
+        "Canadian Nuclear Safety Services website",
+        "",
+        `Name:              ${name}`,
+        `Email:             ${email}`,
+        `Company:           ${company || "-"}`,
+        `Phone:             ${phone || "-"}`,
+        `Service interest:  ${service || "-"}`,
         "",
         "Message:",
         message || "-",
+        "",
+        "--",
+        "Sent from the Request Information form at https://nuclearsafety.ca/#contact",
+        `Reply to this email to respond to ${name} directly.`,
       ].join("\n"),
     });
   } catch (error) {
